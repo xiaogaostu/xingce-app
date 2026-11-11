@@ -107,11 +107,19 @@ export default function PracticePage() {
   // 硬件返回键：做题中弹「还没做完哦」，其余状态交给路由守卫
   useEffect(() => {
     (window as unknown as { __xcPageBack?: () => boolean }).__xcPageBack = () => {
-      // 只有做题中才拦截（弹「还没做完哦」）；报告/选择页交给路由守卫
-      if (phaseRef.current === "practice") {
+      const ph = phaseRef.current;
+      // 做题中：弹「还没做完哦」
+      if (ph === "practice") {
         setExitAsk("practice");
         return true;
       }
+      // 练习报告页：回到「选择模块」（同一 Tab 的上一级）
+      if (ph === "summary") {
+        setPhase("select");
+        window.scrollTo({ top: 0 });
+        return true;
+      }
+      // 选择页：交给路由守卫
       return false;
     };
     return () => { delete (window as unknown as { __xcPageBack?: () => boolean }).__xcPageBack; };

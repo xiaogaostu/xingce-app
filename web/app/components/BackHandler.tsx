@@ -14,6 +14,8 @@ import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 const KEY = "xcNavStack";
+/** 一级 Tab 页：返回统一回首页 */
+const TAB_ROOTS = ["/practice", "/exam", "/wrong", "/me"];
 const MAX = 30;
 
 function norm(p: string): string {
@@ -77,6 +79,14 @@ export default function BackHandler() {
       const cur = pathRef.current;
       // 2) 首页：交给原生退出逻辑
       if (cur === "/") return false;
+
+      // 2.5) 一级 Tab 页（专练/模考/错题/我的）：返回一律回首页
+      //      不依赖历史栈，避免退到别的 Tab（如从 /wrong 退到 /exam）
+      if (TAB_ROOTS.includes(cur)) {
+        writeStack(["/"]);
+        router.replace("/");
+        return true;
+      }
 
       // 3) 回导航栈的上一页
       let s = readStack();

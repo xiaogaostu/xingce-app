@@ -9,7 +9,7 @@ import Link from "next/link";
 import { onSoftRefresh } from "../lib/soft-refresh";
 import EmptyState from "../components/EmptyState";
 import ConfirmDialog from "../components/ConfirmDialog";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   loadWrongEntries,
   removeWrong,
@@ -43,6 +43,8 @@ function plain(html: string | null, max = 110): string {
 
 export default function WrongPage() {
   const [phase, setPhase] = useState<Phase>("categories");
+  const phaseRef = useRef<Phase>("categories");
+  phaseRef.current = phase;
   const [entries, setEntries] = useState<WrongEntry[]>([]);
   const [details, setDetails] = useState<Map<number, Question>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -50,6 +52,17 @@ export default function WrongPage() {
   const [activeModule, setActiveModule] = useState<string | null>(null);
   const [drillId, setDrillId] = useState<number | null>(null);
   const [clearAsk, setClearAsk] = useState(false);
+
+  // 硬件返回键：在本 Tab 内部逐级回退（重做 → 列表 → 分类总览）
+  useEffect(() => {
+    (window as unknown as { __xcPageBack?: () => boolean }).__xcPageBack = () => {
+      const ph = phaseRef.current;
+      if (ph === "drill") { setPhase("list"); window.scrollTo({ top: 0 }); return true; }
+      if (ph === "list") { setPhase("categories"); setActiveModule(null); window.scrollTo({ top: 0 }); return true; }
+      return false; // 分类总览：交给路由
+    };
+    return () => { delete (window as unknown as { __xcPageBack?: () => boolean }).__xcPageBack; };
+  }, []);
 
   const loadAll = useCallback(async () => {
     setLoading(true);

@@ -209,7 +209,17 @@ function ExamPageContent() {
   // 硬件返回键：弹本页的退出确认，而不是直接跳出
   useEffect(() => {
     (window as unknown as { __xcPageBack?: () => boolean }).__xcPageBack = () => {
-      if (phaseRef.current === "exam") { setExitAsk(true); return true; }
+      const ph = phaseRef.current;
+      // 做题中：弹「还没做完哦」
+      if (ph === "exam") { setExitAsk(true); return true; }
+      // 成绩报告页：回到「选择试卷」（同一 Tab 的上一级）
+      if (ph === "result") {
+        setReviewMode(false);
+        setPhase("select");
+        window.scrollTo({ top: 0 });
+        return true;
+      }
+      // 选卷页：交给路由守卫
       return false;
     };
     return () => { delete (window as unknown as { __xcPageBack?: () => boolean }).__xcPageBack; };
