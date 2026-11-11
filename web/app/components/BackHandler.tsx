@@ -36,18 +36,34 @@ export default function BackHandler() {
   const pathname = usePathname() || "/";
   const pathRef = useRef(norm(pathname));
 
-  // 记录导航栈：新页面入栈；若是回到栈中已有页面，则截断到该位置
+  // 记录导航栈：push 入栈；replace（如底部 Tab 切换）替换栈顶，不新增层级
   useEffect(() => {
     const p = norm(pathname);
     pathRef.current = p;
+
+    // Tab 切换等 replace 导航会先写这个标记，消费一次即清除
+    const w = window as unknown as { __xcNavMode?: "push" | "replace" };
+    const mode = w.__xcNavMode;
+    delete w.__xcNavMode;
+
     const s = readStack();
     const idx = s.lastIndexOf(p);
     if (idx >= 0) {
+      // 回到栈里已有的页面：截断到该位置
       writeStack(s.slice(0, idx + 1));
-    } else {
-      s.push(p);
-      writeStack(s);
+      return;
     }
+    // 栈底永远保留首页，保证任何页面都能退回首页
+    if (s.length === 0) s.push("/");
+    if (s[s.length - 1] === p) return;
+    if (mode === "replace" && s.length > 1) {
+      // replace（Tab 切换）：替换当前层级，不新增一层
+      s[s.length - 1] = p;
+      writeStack(s);
+      return;
+    }
+    s.push(p);
+    writeStack(s);
   }, [pathname]);
 
   useEffect(() => {

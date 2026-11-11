@@ -88,7 +88,12 @@ export default function TabBar() {
               key={t.href}
               href={t.href}
               replace
-              onClick={(e) => { e.preventDefault(); router.replace(t.href); }}
+              onClick={(e) => {
+                e.preventDefault();
+                // 标记为 replace：导航栈替换当前层级，避免 Tab 之间堆栈导致返回跳错页
+                (window as unknown as { __xcNavMode?: "push" | "replace" }).__xcNavMode = "replace";
+                router.replace(t.href);
+              }}
               className="xc-tab"
               style={{ position: "relative", zIndex: 1 }}
             >
