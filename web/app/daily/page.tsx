@@ -239,6 +239,10 @@ export default function DailyPage() {
           </div>
         </div>
 
+        {detailId !== null && (
+          <QuestionModal questionId={detailId} onClose={() => setDetailId(null)} />
+        )}
+
         <div className="mt-3 flex gap-2.5">
           <Link href="/" className="xc-btn-ghost flex-1">回首页</Link>
           <button onClick={restart} className="xc-btn flex-1">再来 10 题</button>
@@ -402,10 +406,6 @@ export default function DailyPage() {
       </FixedLayer>
 
       <ReasonSheet open={reasonFor !== null} questionId={reasonFor} onClose={() => setReasonFor(null)} />
-
-      {detailId !== null && (
-        <QuestionModal questionId={detailId} onClose={() => setDetailId(null)} />
-      )}
 
       <ConfirmDialog
         open={exitAsk}

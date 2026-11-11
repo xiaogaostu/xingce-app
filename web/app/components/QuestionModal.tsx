@@ -8,6 +8,7 @@
 import { useEffect, useState } from "react";
 import QuestionCard, { type Question } from "./QuestionCard";
 import Icon from "./Icon";
+import FixedLayer from "./FixedLayer";
 
 interface QuestionModalProps {
   question?: Question | null;
@@ -64,9 +65,25 @@ export default function QuestionModal({
     };
   }, [onClose]);
 
+  // 硬件返回键：优先关闭本弹窗，而不是退回上一个页面（避免直接跳首页）
+  useEffect(() => {
+    const w = window as unknown as { __xcPageBack?: () => boolean; __xcModalBack?: boolean };
+    const prev = w.__xcPageBack;
+    w.__xcModalBack = true;
+    w.__xcPageBack = () => {
+      onClose();
+      return true;
+    };
+    return () => {
+      w.__xcModalBack = false;
+      w.__xcPageBack = prev;
+    };
+  }, [onClose]);
+
   return (
+    <FixedLayer>
     <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[135] flex items-end justify-center bg-black/60 backdrop-blur-sm"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -122,5 +139,6 @@ export default function QuestionModal({
         </div>
       </div>
     </div>
+    </FixedLayer>
   );
 }

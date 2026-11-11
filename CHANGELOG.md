@@ -17,6 +17,33 @@
 
 ---
 
+## [1.9.8] 2026-11-11
+
+### 修复
+- **今日练习交卷后没有逐题答题详情**
+  - 原因：`phase === "result"` 是独立 return 分支，而 `QuestionModal` 渲染在下面的「做题」分支里，结果页根本渲染不到弹窗
+  - 修复：把 `QuestionModal` 移入 result 分支内
+  - 涉及：`web/app/daily/page.tsx`
+
+- **题目详情弹窗贴在点击位置附近、覆盖页面导致无法点击**
+  - 原因：`QuestionModal` 用普通 `fixed` 定位，而页面容器带 `transform` 动画 —— `fixed` 会变成相对该容器定位，于是弹窗跟着点击位置走
+  - 修复：改用 `FixedLayer`（`createPortal` 到 `document.body`），脱离页面 transform，固定贴底居中；遮罩 z-index 提升到 135
+  - 涉及：`web/app/components/QuestionModal.tsx`
+
+- **题目详情里手势返回直接回到首页**
+  - 原因：弹窗没有接管硬件返回键，`__xcBack` 直接执行页面导航
+  - 修复：弹窗打开时注册 `__xcPageBack` 拦截返回（关闭弹窗，不导航）；关闭后恢复原处理器
+  - 涉及：`web/app/components/QuestionModal.tsx`
+
+### 验证
+| 场景 | 结果 |
+|---|---|
+| 今日练习结果页 → 逐题详情 | 弹窗出现 ✓ |
+| 专练报告 → 查看题目 | 弹窗出现 ✓ |
+| 模拟考试 → 点题号 → 详情 | 弹窗出现 ✓ |
+| 弹窗尺寸（三个入口） | 均 390×844 整屏，x=0，不贴点击位置 ✓ |
+| 弹窗内手势返回 | 关闭弹窗、URL 不变（不回首页）✓ |
+
 ## [1.9.7] 2026-11-03
 
 ### 修复
