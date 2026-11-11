@@ -44,6 +44,12 @@
 | 弹窗尺寸（三个入口） | 均 390×844 整屏，x=0，不贴点击位置 ✓ |
 | 弹窗内手势返回 | 关闭弹窗、URL 不变（不回首页）✓ |
 
+### 打包（v1.9.8 应用版本）
+- 产物：`xingce-app-v27-full.apk`（116MB）+ `xingce-app-v27-lite.apk`（69MB），已删除 v26 旧包
+- 打包前回归 15/15；APK 内回归 15/15；专项验收 6/6；0 JS 错误
+- Release：https://github.com/YMDHZBSJ/xingce-app/releases/tag/v1.9.8
+
+
 ## [1.9.7] 2026-11-03
 
 ### 修复
